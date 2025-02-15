@@ -1,0 +1,241 @@
+---
+title: "Structural Equation Modeling Based Meta-Analysis - multivarate"
+Author: "Mike Cheung"
+format:
+  html: 
+    #incremental: true  
+    #smaller: true
+    #scrollable: true
+    #theme: solarized
+    #logo: logo.png
+    footer: "Nduka Boika"
+    #chalkboard: true
+    slide-number: true
+    #show-slide-number: print
+    embed-resources: true
+    toc: true
+    toc-location: left
+editor: visual
+---
+
+------------------------------------------------------------------------
+
+## Multivariate context
+
+-   When the research questions become more complicated, a single effect-size may not be sufficient to summarize the effect in the pry studies. Multiple effect sizes are required to quantify the effects of the study.
+-   An extension of the univariate approach.
+-   The data for the analysis is in a vector or matrix form.
+-   Key points to consider: (sources of dependency)
+    -   Within-study variance: This is the variation due to sampling in the individual studies, typically represented by a covariance matrix.
+    -   Between-study variance: Represented by $(\tau^2)$, this accounts for the variability in true effect sizes across studies.
+    -   given one study, it is difficult to estimate this dependence.
+
+------------------------------------------------------------------------
+
+### Stages of MASEM
+
+-   Two stages (TSSEM) of MASEM
+    -   pool the correlation matrix together
+    -   pooled correlation matrix is used to fit the SEM
+-   The metaSEM package handles both fixed- or random-effects models automatically.
+-   TSSEM uses Maximum Likelihood (ML) to obtain the pooled correlation matrix and test for heterogeneity, making it effective for both fixed- and random-effects models.
+-   The parameter estimates are unbiased ensuring the results are reliable and valid.
+-   Effective in handling missing data when correlation estimates are MCAR or MAR.
+
+------------------------------------------------------------------------
+
+### Stage 1
+
+#### Fixed-effects model
+
+-   Assumes common population (covariance) correlation matrices for all studies
+-   If an ith study has a covariance matrix, the matrix can be decomposed into a product of the matrices of correlations and standard deviations. $$\boldsymbol{\sum_i}(\theta) = \boldsymbol{D_i} \boldsymbol{P_i} \boldsymbol{D_i}$$ $\boldsymbol{\sum}(\theta_i)$ = model implied covariance matrix, $\boldsymbol{D_i}$ = diagonal matrix of standard deviations, $\boldsymbol{P_i}$ = correlation matrix in the i_th study.
+-   A constraint is imposed such that $\boldsymbol{\rho} = \boldsymbol{P_1}=\boldsymbol{P_2}=\boldsymbol{P_3}...=\boldsymbol{P_k}$
+-   $\boldsymbol{D_i}$ may vary across studies, however if you assume common covariance (homogeneity of variance) , we can just constrain the matrices. $$\boldsymbol{D} = \boldsymbol{D_1}=\boldsymbol{D_2}=\boldsymbol{D_3}...=\boldsymbol{D_k}$$
+-   A likelihood ratio test (LR) can be used to test the null hypothesis homogeneity of correlation matrices.
+-   Various goodness-of-fit may also be used to evaluate the homogeneity of correlation matrices.
+
+------------------------------------------------------------------------
+
+#### Random-effects model
+
+-   The assumption of homogeneity of correlation matrices may not be reasonable.
+-   The pry studies are independently conducted by different researchers, so
+    -   samples
+    -   measures
+    -   researches focuses are likely different.
+-   more appropriate method to analyze the data.
+-   Using this Random-effects model, we treat the correlation matrices as vectors of multivariate effect-sizes (multiple variables). Let $\boldsymbol{r_i} = vechs(\boldsymbol{R_i})$ be the $p(p-1)/2$ X 1 vector of a sample correlation for p variables.
+    -   e.g., if p = 3 (variables), then the number of unique element in the correlation matrix $(\boldsymbol{R_i})$ will be 3(3-1)/2 = 3.
+-   If dealing with a covariance matrix, the number of unique elements will be $p(p+1)/2$ = $\boldsymbol{s_i} = vech(\boldsymbol{S_i})$
+-   The model for the sample correlation vector = $\boldsymbol{r_i} = {P_R} + \boldsymbol{u_i} + \boldsymbol{e_i}$.
+-   ${\rho_R}$ = $p(p-1)/2$ X 1 = average true correlation vector, $Var(\boldsymbol{U_i})$ = between study variance component called Tau-squared, $(\boldsymbol{\tau^2})$ $Var(\boldsymbol{e_i})$ = sampling covaraiance matrix.
+
+::: {.callout-tip appearance="simple"}
+$\boldsymbol{u_i} \sim N(0, \boldsymbol{\tau^2})$
+
+$\boldsymbol{e_i} \sim N(0, \boldsymbol{V_i})$
+
+$\boldsymbol{\tau^2}$ can be `non-positive` definite if we have many variables(effect-sizes), and not enough data. Thus, the results cannot be trusted.
+
+The solution is to fix $\boldsymbol{\tau^2}$ to a diagonal matrix instead of a symmetric matrix. (specify the argument`RE.type="Diag"`in the TSSEM function)
+:::
+
+------------------------------------------------------------------------
+
+### Stage 2
+
+-   In the stage 1 analysis a vector of pooled correlations $\boldsymbol{r}$ and its asymptotic covariance matrix $\boldsymbol{V}$ are obtained.
+-   Note that $\boldsymbol{\tau^2}$ is not directly involved in fitting the correlation structure in this stage. yet we still have to take it into account to determine the heterogeneity of the random effects.
+-   It is incorrect to:
+    -   use a pooled correlation matrix as if it were an observed correlation matrix to fit SEM (Cheung and Chan 2005b)
+    -   analyze the pooled correlation matrix, and to use it as if it were a covariance matrix.
+        -   specifically, the chi-square statistics and(or) the SEs of the parameter estimates may be incorrect.
+-   The issue above is addressed in the TSSEM approach which uses the WLS estimation to fit the propsed model in this stage.
+-   This is done by minimizing the fit function $F_{\text{wls}} = (\boldsymbol{r} - \boldsymbol{r}_{\text{model}})^T \boldsymbol{V}^{-1} (\boldsymbol{r} - \boldsymbol{r}_{\text{model}})$ = vector containing the lower triangular element of the sample correlation matrix $\boldsymbol{r}_{\text{model}}$ = vector containing the lower triangular element of the implied covariance matrix $\boldsymbol{V}^{-1}$ = the asymptotic covariance matrix from the first stage.
+-   LR statistics is used to test the appropriateness of the structural model, and SE is used to test the significance of the parameter estimates.
+
+------------------------------------------------------------------------
+
+## R illustration
+
+### Digman data set
+
+-   The digman (1997) dataset reported a second-order factor analysis on a five-factor model with 14 studies.
+-   Two factors are
+    -   Alpha \~ agreeableness (A), conscientiousness (C), and emotional stability (ES)
+    -   Beta \~ extroversion (E), and intellect (I).
+-   We use the TSSEM approach to test the proposed model.
+-   Correlation matrices (data) are stored in `Digman97$data`
+-   sample sizes are stored in `Digman97$n`
+
+```{r}
+library(metaSEM) # load package
+head(Digman97$data) # first six rows of the data (correlation matrices from 6 studies)
+head(Digman97$n) # sample sizes from the above matrices.
+```
+
+#### Stage 1
+
+-   use the TSSEM1() function to pool the correlation matrices together. For the fixed-effects model in this first stage, just specify the `method="FEM"` in the argument.
+
+```{r}
+# Stage 1: Pooling correlation matrices using Fixed-Effects Model (FEM)
+fixed1 <- tssem1(Digman97$data, 
+                 Digman97$n, 
+                 method = "FEM")  # Fixed-effects model for meta-analysis
+
+# Display the summary of the Stage 1 analysis, including fit indices
+summary(fixed1)
+
+```
+
+-   We want to test for the homogeneity of correlation matrices in this stage 1.
+    -   $\chi^2(df= 130, N= 4,496) = 1505.4443, p = .0000, CFI = .6824, TLi = .6580, SRMR= .1621, RMSEA = .1815$
+    -   The p-value is less than .05 indicating that the correlation matrices are different from from one another, violating the homogeneity of correlation matrix assumption. This tells us that the random effects model is more suitable for the analysis.
+    -   The TLI and CFI values are smaller than the threshold of \>.96
+    -   RMSEA and SRMR values are larger than the recommended threshold of \<.08
+
+```{r}
+coef(fixed1) # extract the pooled correlation matrix
+```
+
+#### Stage 2
+
+-   We want to fit the Structural equation model. In the Digman study the model is a factor analytic model.
+-   Two factors loading on 5 observed variables
+-   We need to specify the:
+    -   path from the latent factor to the observed variables (A-matrix)
+    -   variance-covariance structure (S-matrix)
+    -   selection matrix used to filter observed variables (F-matrix)
+-   We specify these matrices in the reticular action model (RAM)
+
+```{r}
+model1 <- "## Factor loadings
+           Alpha =~ A+C+ES
+           Beta =~ E+I
+           ## Factor correlation
+           Alpha ~~ Beta"
+
+plot(model1)
+
+```
+
+```{r}
+RAM1 <- lavaan2RAM(model1, obs.variables=c("A","C","ES","E","I"),
+                   A.notation="on", S.notation="with")
+RAM1
+
+```
+
+```{r}
+# Run the second stage of Two-Stage Structural Equation Modeling (TSSEM)
+fixed2 <- tssem2(fixed1, 
+                 RAM=RAM1,
+                 intervals="LB",
+                 model.name = "TSSEM2 Digman97")
+
+# Display the summary of the model
+summary(fixed2)
+```
+
+-   The fit indices for the Stage 2 structural model are: $\chi^2(df= 4, N= 4,496) = 65.4526, p = .0001, CFI = .98, TLi = .95, SRMR= .03, RMSEA = .05$
+-   The result looks good but remember, stage suggests that a random effect model is more appropriate.
+
+### Random effects model
+
+-   This model is equivalent to the Generalized Least Squares (GLS) approach proposed by Becker (1992)
+
+```{r}
+# Stage 1: Pooling correlation matrices using Random-Effects Model (FEM)
+random1 <- tssem1(Digman97$data, 
+                 Digman97$n, 
+                 method = "REM",
+                 RE.type="Diag")  # random-effects model for meta-analysis
+
+# Display the summary of the Stage 1 analysis, including fit indices
+summary(random1)
+
+```
+
+-   I2 ranges from .77 to .93 indicating high level of heterogeneity among the correlation elements.
+
+```{r}
+## Fixed effects
+coef(random1, select="fixed")
+
+## Random effects
+coef(random1, select="random")
+```
+
+```{r}
+# Stage 2: Structural equation modeling using the random-effects model
+random2 <- tssem2(random1, 
+                  RAM=RAM1,
+                  intervals="LB")
+
+# Display the summary of the Stage 2 analysis
+summary(random2)
+```
+
+-   The fit indices for the Stage 2 structural model are: $\chi^2(df= 4, N= 4,496) = 7.8204, p = .10, CFI = .99, TLi = .98, SRMR= .04, RMSEA = .01$
+-   The result indicates that the model fits the data quite well.
+-   The factor loadings on the Alpha factor are: 0.5694, 0.5906, and 0.7605
+-   The factor loadings on the Beta factor are: 0.6800 and 0.6418
+-   The factor correlation between Alpha and Beta is 0.3937.
+-   All of these estimates are statistically significant
+
+```{r}
+# Plot the path diagram with labeled edges
+plot(random2, 
+     whatLabels = "path", 
+     edge.label.cex = 0.8)  # Adjust label size for better readability
+
+```
+
+```{r}
+# Plot the parameter estimates with a specified color
+plot(random2, 
+     color = "yellow")  # Set node color to yellow
+
+```

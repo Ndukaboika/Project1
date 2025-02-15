@@ -1,0 +1,46 @@
+---
+title: "Software"
+format:
+  html:
+    header-includes: |
+      <link rel="stylesheet" media="screen" href="https://fonts.googleapis.com/css?family=Asap" type="text/css"/>
+mainfont: Asap
+sansfont: Asap
+---
+
+<hr>
+
+::::: {layout="[ 25, 80 ]"}
+::: {#first-column}
+![](themeparklogo.png)
+:::
+
+::: {#second-column}
+### ThemePark
+
+Generating popular culture styled ggplot themes. Featured on [rweekly.org](https://rweekly.org/2023-W32.html) and [flowingdata.com](https://flowingdata.com/2023/07/28/barbie-and-oppenheimer-themes-for-charts-in-r/)
+
+[theme park](https://github.com/MatthewBJane/theme_park)
+:::
+:::::
+
+<hr>
+
+::::: {layout="[ 25, 80 ]"}
+<div>
+
+![](opensynthesislogo.png)
+
+</div>
+
+<div>
+
+### OpenSynthesis
+
+Website cataloging publicly available meta-analytic databases.
+
+[Webpage](https://matthewbjane.com/opensynthesis/)
+
+</div>
+:::::
+

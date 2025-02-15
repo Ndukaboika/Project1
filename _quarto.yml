@@ -1,0 +1,39 @@
+project:
+  type: website
+
+website:
+  title: "Nduka Boika"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - text: "CV"
+        file: cv.qmd
+      - text: "Blog"
+        file: blog.qmd
+      - href: Software.qmd
+        text: Software
+        
+    right:
+      - icon: github
+        href: https://github.com/ndukaboika
+      - icon: linkedin
+        href: https://linkedin.com/nduka-boika-447262109
+      - icon: twitter
+        href: https://x.com/boika_nduka
+
+format:
+  html:
+    theme: 
+     - darkly
+      - barbie.scss
+    code-fold: false
+    code-overflow: wrap
+    highlight-style: github
+    css: styles.css
+    toc: true
+
+editor: visual
+
+
+
