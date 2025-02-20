@@ -1,0 +1,59 @@
+---
+title: "Understanding missing data"
+format: html
+editor: visual
+---
+
+During the data collection and analysis phase of research, it is common to experience or encounter missing data. Missing data are pieces of information that do not tell us much about a phenomenon. This can be due to reasons such as non-response of the respondents or accidental deletion of data, or data that gives absolutely no meaning to variable (technically missing data has meaning). Usually, missingness follow some patterns in the data set.
+
+### Patterns of Missingness
+
+-   Missing completely at random (MCAR): This type of missingness in a particular variable is not related to this particular variable that is experiencing missingness, it is not related to the other variables in the dataset. It is strictly due to randomness (that is, it just happened, and i'm not sure why).
+-   Example: Say you are interested in predicting the final mathematics scores of grade 2 students in a particular school using their mid-term scores, gender, and attendance to school. For the missingness pattern to be MCAR, the missing data in the students final mathematics score will not be related or dependent on their final scores, mid-term scores, gender, or/and attendance to school (given that all the students were present on the day of the exam and wrote the final exam). It could have been as a result of random deletion of the scores by the teacher (by mistake). Missingness has nothing to do with the data itself.
+-   How do we detect MCAR: One common method is comparing the distribution of observed variables between groups with and without missing data. If they are similar, it might be MCAR. Another method is using Little's test, which is a statistical test for MCAR. Also, looking at patterns of missingness through visualizations can
+    -   In SPSS, one can use the missing value analysis (MVA) module. Patterns can be examined via the missing patterns table, use t-tests to compare groups, and run Little's MCAR test which is available in the MVA. One can also use cross-tabs with missing indicators to check relationships.
+    -   For a variable Y(final mathematics score) with missing values, we can create a new indicator variable (0 if Y is missing, 1 if present). Then compare the distribution of other variables X (like mid-term scores) between these two groups using t-tests for continuous variables or chi-square for categorical. Little's test is a more formal statistical test. If the p-value is not significant, then we don't reject MCAR. But this test can be sensitive to sample size.
+-   I should mention that these methods are not foolproof. For example, even if distributions look similar, there might be missingness related to unobserved variables, which we can't test. So MCAR is an assumption that's hard to verify completely, but these tests give some evidence.
+-   For R, I can suggest using the 'mice' package for missing data analysis. Steps would include checking missing patterns with md.pattern(), then splitting the data into missing and non-missing groups for a variable and using t-tests or chi-square tests to compare distributions. Also, Little's test can be done with the 'BaylorEdPsych' package or 'naniar' and 'broom' for the test.
+
+1.  
+
+```{r}
+# Load libraries
+library(mice)   # For missing data analysis
+library(naniar) # For visualizing missingness
+
+# Example: airquality dataset (missing Ozone data)
+data <- airquality
+head(data)
+
+# Create missingness indicator for Ozone
+data$missing_ozone <- ifelse(is.na(data$Ozone), "Missing", "Not Missing")
+
+# Compare Solar.R between missing/non-missing Ozone groups
+t.test(Solar.R ~ missing_ozone, data = data)
+
+# Visualize distributions
+boxplot(Solar.R ~ missing_ozone, data = data, 
+        main = "Solar.R Distribution by Ozone Missingness")
+
+```
+
+##### Interpretation:
+
+If the p-value from the t-test is \> 0.05, the means of Solar.R are similar across groups, supporting MCAR. As we can see from the above t-test, p \> .05, indicating that the missing pattern is MCAR
+
+Boxplots should show overlapping distributions. The boxplot shows overlap between the indicators on Solar.R variable.
+
+2.  Little’s MCAR Test
+
+```{r}
+
+# Alternative using naniar and broom
+library(naniar)
+library(broom)
+mcar_test(airquality) %>% tidy()
+
+# Missingness pattern heatmap
+vis_miss(airquality)
+```

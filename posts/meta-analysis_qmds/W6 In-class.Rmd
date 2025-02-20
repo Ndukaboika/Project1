@@ -1,0 +1,75 @@
+---
+title: "W6 In-class Exercise: Ch7"
+output: html_document
+date: "2025-02-17"
+---
+
+# Ready
+
+If you haven't installed the following packages, run the codes below:
+
+```{r eval = FALSE}
+install.packages("dplyr")
+install.packages("metafor")
+```
+
+Load the packages
+
+```{r}
+library(dplyr)
+library(metafor)
+```
+
+# `metafor` R package
+
+The `metafor` package includes the \href{https://wviechtb.github.io/metafor/reference/escalc.html}{`escalc` function} for computing a wide range of ES estimates. See its online document for details.
+
+-   NOTE: \texttt{escalc} uses a slightly different approximation for the sampling variance of $g$. You can change the variance estimator using the \texttt{vtype} argument.
+
+# Ch 7. Exercise 1
+
+```{r}
+# Read data 
+ex1dat <- read.csv("Ex1_dat.csv")
+
+```
+
+## Hand calculation:
+
+```{r}
+m_ctr <- mean(ex1dat$Control)
+m_trt <- mean(ex1dat$Treatment)
+
+v_ctr <- var(ex1dat$Control)
+v_trt <- var(ex1dat$Treatment)
+
+```
+
+## Use `escalc`:
+
+$SMD = \frac{m1i - m2i}{s_p}$, we define `m1i` = Treatment group's mean, `m2i` = Control group's mean.
+
+```{r}
+escalc(measure = "SMD", 
+       m1i = mean(ex1dat$Treatment), sd1i = sd(ex1dat$Treatment), n1i = 8,
+       m2i = mean(ex1dat$Control), sd2i = sd(ex1dat$Control), n2i = 8, 
+       var.names = c("g", "v_g"))
+```
+
+# Ch 7. Exercise 3
+
+```{r}
+ex3dat <- read.csv("deltas.csv")
+```
+
+## Hand caluclation
+
+```{r}
+
+```
+
+## Use metafor
+
+```{r}
+
+```
