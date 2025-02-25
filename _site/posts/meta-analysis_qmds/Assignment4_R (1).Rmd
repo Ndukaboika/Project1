@@ -1,0 +1,31 @@
+---
+title: "Screening"
+author: "Jihyun Lee"
+date: "2025-02-10"
+output: html_document
+---
+
+1.  Install the `revtools` package using the following line of code:
+
+    ```{r, eval=FALSE}
+    install.packages("revtools")
+    ```
+
+2.  Load the revtools package:
+
+    ```{r, eval=FALSE}
+    library(revtools)
+    ```
+
+3.  Read in the file with records for screening (change the file path so that it points to where-ever you saved the `.rds` file):
+
+    ```{r}
+    practice_refs <- readRDS("practice-refs.rds")
+    ```
+
+4.  Run the `revtools` abstract screening tool:
+
+    ```{r, eval=FALSE}
+    screen_abstracts(practice_refs)
+    
+    ```
