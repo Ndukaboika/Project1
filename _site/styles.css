@@ -1,1 +1,15 @@
-/* css styles */
+/* Set font size for the body of the document */
+body {
+  font-size: 12px;
+}
+
+/* Further customizations for TOC */
+#toc {
+  font-size: 12px;
+  background-color: #f8f9fa;
+}
+
+/* Optional: Modify code block styles */
+pre code {
+  font-size: 12px;
+}

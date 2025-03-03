@@ -30,6 +30,7 @@ The `metafor` package includes the \href{https://wviechtb.github.io/metafor/refe
 
 ```{r}
 # Read data 
+
 ex1dat <- read.csv("Ex1_dat.csv")
 ```
 
@@ -49,6 +50,14 @@ escalc(measure = "SMD",
        m2i = mean(ex1dat$Control), sd2i = sd(ex1dat$Control), n2i = 8, 
        var.names = c("g", "v_g"))
 
+```
+
+
+```{r}
+escalc(measure = "SMD", 
+       m1i = 17.64, sd1i = 11.57, n1i = 147,
+       m2i = 19.25, sd2i = 10.56, n2i = 109, 
+       var.names = c("g", "v_g"))
 ```
 
 # Ch 7. Exercise 3
@@ -74,7 +83,7 @@ week6_correct <- escalc(measure = "SMD",
 
 week6_correct
 
-write.csv(week6_correct, )
+write.csv(week6_correct, file = "inclass_wk62.csv", fileEncoding = "macroman")
 ```
 
 :::: call-out note
