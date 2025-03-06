@@ -1,97 +1,25 @@
 ---
-title: "W6 In-class Exercise: Ch7"
-output: html_document
-date: "2025-02-17"
+title: "wk_7 exercise"
+author: "Nduka Boika"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc-location: left
 ---
 
-# Ready
-
-If you haven't installed the following packages, run the codes below:
-
-```{r eval = FALSE}
-# install.packages("dplyr")
-# install.packages("metafor")
-```
-
-Load the packages
 
 ```{r}
-styler:::style_file("W6 In-class.Rmd")
+styler:::style_file("wk_7 in class exercise.Rmd")
 library(dplyr)
 library(metafor)
+library(DescTools)
 ```
-
-# `metafor` R package
-
-The `metafor` package includes the \href{https://wviechtb.github.io/metafor/reference/escalc.html}{`escalc` function} for computing a wide range of ES estimates. See its online document for details.
-
--   NOTE: \texttt{escalc} uses a slightly different approximation for the sampling variance of $g$. You can change the variance estimator using the \texttt{vtype} argument.
-
-# Ch 7. Exercise 1
-
-```{r}
-# Read data
-
-ex1dat <- read.csv("Ex1_dat.csv")
-```
-
-## Hand calculation:
-
-```{r}
-```
-
-## Use `escalc`:
-
-$SMD = \frac{m1i - m2i}{s_p}$, we define `m1i` = Treatment group's mean, `m2i` = Control group's mean.
-
-```{r}
-escalc(
-  measure = "SMD",
-  m1i = mean(ex1dat$Treatment), sd1i = sd(ex1dat$Treatment), n1i = 8,
-  m2i = mean(ex1dat$Control), sd2i = sd(ex1dat$Control), n2i = 8,
-  var.names = c("g", "v_g")
-)
-```
-
-
-```{r}
-escalc(
-  measure = "SMD",
-  m1i = 17.64, sd1i = 11.57, n1i = 147,
-  m2i = 19.25, sd2i = 10.56, n2i = 109,
-  var.names = c("g", "v_g")
-)
-```
-
-# Ch 7. Exercise 3
-
-```{r}
-ex3dat <- read.csv("deltas.csv")
-```
-
-## Use metafor
-
-```{r}
-week6_correct <- escalc(
-  measure = "SMD",
-  data = ex3dat,
-  m1i = MTx, sd1i = SDTx, n1i = nTx,
-  m2i = MCtl, sd2i = SDCtl, n2i = nCtl,
-  var.names = c("g", "v_g")
-)
-
-week6_correct
-
-write.csv(week6_correct, file = "inclass_wk62.csv", fileEncoding = "macroman")
-```
-
-:::: call-out note
-g = hedges g Unbiased estimate of δ (like cohen's d)
-v_g = Variance of the sampling distribution for each study
-::::
 
 # Calculate Fisher’s z and its variance vz using both hand calculation
 and escalc() function.
+
+### using both hand calculation
 
 ```{r}
 ### Fisher z transformation (hand calculation)
@@ -148,14 +76,14 @@ fisherz
 ### Back transformation (convert from fisher z to correlation r) 
 ```{r}
 # Back transformation (hand)
-library(DescTools)
-
 # including the transformed variable in the dataset. (you will see two similar column)
 dataex1 <- dataex1 %>%
   mutate(
-    r_new = (exp(2 * zi) - 1) / (exp(2 * zi) + 1), # or
-    r_new2 = FisherzInv(zi)
+    r_new = (exp(2 * zi) - 1) / (exp(2 * zi) + 1) # or
+    # r_new2 = FisherzInv(zi)
   )
+
+dataex1
 ```
 
 # What is n for each correlation in Table 8.1? (Use a simple algebra!)
@@ -166,15 +94,17 @@ dataex1 <- dataex1 %>%
 t <- qnorm(1 - 0.00031 / 2)
 z <- atanh(0.53)
 n <- (t / z)^2 + 3
-
+n
 
 t_2 <- qnorm(1 - 0.00116 / 2)
 z_2 <- atanh(0.484)
 n_2 <- (t_2 / z_2)^2 + 3
+n_2
 
 t_3 <- qnorm(1 - 0.0001 / 2)
 z_3 <- atanh(0.587)
 n_3 <- (t_3 / z_3)^2 + 3
+n_3
 
 # or
 
@@ -184,44 +114,36 @@ r <- c(0.53, 0.484, 0.587)
 t <- qnorm(1 - p / 2)
 z <- atanh(r)
 n <- (t / z)^2 + 3
+n
 ```
 
 
-# Risk Difference
+# Risk Difference (Ex 1)
+### hand calc
 ```{r}
 # hand calculation
 
-ai <- 45 # events in the treatment group
+ai <- 45
 bi <- 15
-ci <- 30 # events in the control group
+ci <- 30
 di <- 30
 na <- nb <- 60
 
+# employment
 p1 <- ai / na
-p2 <- bi / nb
+p2 <- ci / nb
 
 RD <- p1 - p2
 RD
+
+# unemployment
+1 - RD
 ```
 
-# using escalc
-# Risk difference
+### using escalc
+
 ```{r}
-# unemployed
-RD <- escalc(
-  measure = "RD",
-  ai = 15, n1i = 60,
-  ci = 30, n2i = 60
-)
-
-RD
-
-# log of RD
-exp(RD)
-
-
 # employed
-
 RD <- escalc(
   measure = "RD",
   ai = 45, n1i = 60,
@@ -229,10 +151,14 @@ RD <- escalc(
 )
 
 RD
-exp(RD)
+
+
+# unemployed
+1 - RD
 ```
 
-# Calculate RR and Log-RR for employment
+# Calculate RR and Log-RR (Ex 2)
+### for employment (hand calc)
 ```{r}
 ai <- 45 # events in the treatment group
 ci <- 30 # events in the control group
@@ -261,7 +187,7 @@ se_log_rr
 
 
 
-# Calculate RR and Log-RR for unemployment.
+### for unemployment (hand calc.
 ```{r}
 # Define data
 ai <- 15 # events in the treatment group
@@ -289,8 +215,8 @@ se_log_rr
 ```
 
 
-# using escalc
-# Risk ratio
+### using escalc
+
 ```{r}
 # unemployment
 RR <- escalc(
@@ -313,23 +239,26 @@ RR <- escalc(
 )
 
 RR
-exp(RR)
 ```
 
-
-
-# odds ratio 
-
+# odds ratio and sampling variance
+### hand calc
 ```{r}
+ai <- 45
+bi <- 15
+ci <- 30
+di <- 30
+na <- nb <- 60
+
 odd_ratio <- (ai * di) / (bi * ci) # sample size treatment group
 log(odd_ratio)
 
-
+# sampling variance
 LOR <- (1 / ai) + (1 / bi) + (1 / ci) + (1 / di)
 LOR
 ```
 
-# odds ratio
+### using escalc
 ```{r}
 # employed
 
@@ -338,15 +267,5 @@ OR <- escalc(
   ai = 45, n1i = 60,
   ci = 30, n2i = 60
 )
-OR
-
-
-# unemployed
-OR <- escalc(
-  measure = "OR",
-  ai = 15, n1i = 60,
-  ci = 30, n2i = 60
-)
-
 OR
 ```
